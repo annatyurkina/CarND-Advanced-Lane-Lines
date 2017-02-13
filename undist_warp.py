@@ -9,8 +9,8 @@ import glob
 import matplotlib.cm as cm
 
 def get_perspective_transform_matrix():
-    src = np.float32([[625.0,430.0],[501.0,517.0],[793.0,517.0],[655.0,430.0]])
-    dst = np.float32([[501.0,0.0],[501.0,517.0],[793.0,517.0],[793.0,0.0]])
+    src = np.float32([[595.0,450.0],[259.0,687.0],[1056.0,687.0],[687.0,450.0]])
+    dst = np.float32([[219.0,0.0],[219.0,720.0],[1091.0,720.0],[1091.0,0.0]])
     M = cv2.getPerspectiveTransform(src, dst)
     return M;
 
@@ -19,6 +19,7 @@ def warp(img, mtx, dist):
     cvt = color_transform.combine(udst)
     #cv2.imshow('cvt',cvt)
     M = get_perspective_transform_matrix()
+    print(cvt.shape)
     warped = cv2.warpPerspective(cvt, M, (cvt.shape[1], cvt.shape[0]), flags=cv2.INTER_LINEAR)
     return warped
 

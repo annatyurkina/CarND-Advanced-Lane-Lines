@@ -17,6 +17,11 @@ def hls_conversion(iscv2):
         return cv2.COLOR_BGR2HLS
     return cv2.COLOR_RGB2HLS
 
+def hsv_conversion(iscv2):    
+    if(iscv2):
+        return cv2.COLOR_BGR2HSV
+    return cv2.COLOR_RGB2HSV
+
 def abs_sobel_thresh(img, orient='x', sobel_kernel=3, thresh=(0, 255), iscv2=True):
     # Grayscale
     gray = cv2.cvtColor(img, gray_conversion(iscv2))
@@ -75,6 +80,13 @@ def hls_select(img, thresh=(0, 255), iscv2=True):
     binary[(s > thresh[0]) & (s <= thresh[1])] = 1
     return binary
 
+def hsv_select(img, thresh=(0, 255), iscv2=True):
+    hsv = cv2.cvtColor(img, hsv_conversion(iscv2))
+    s = hsv[:,:,1]
+    binary = np.zeros_like(s)
+    binary[(s > thresh[0]) & (s <= thresh[1])] = 1
+    return binary
+
 def combine(image, ksize=3):
     # Apply each of the thresholding functions
     gradx = abs_sobel_thresh(image, orient='x', sobel_kernel=ksize, thresh=(20, 100))
@@ -84,7 +96,7 @@ def combine(image, ksize=3):
     hls_binary = hls_select(image, thresh=(90, 255))
     # Combine functions in a smart (hopefully) way
     combined = np.zeros_like(dir_binary)
-    combined[((gradx == 1) & (hls_binary == 1)) | ((mag_binary == 1) & (dir_binary == 1))] = 1
+    combined[((gradx == 1) & (grady == 1) & (mag_binary == 1)) | ((hls_binary == 1) & (dir_binary == 1))] = 1
     return combined
 
 def write_color_transformed_test_images():
@@ -101,9 +113,6 @@ def write_color_transformed_test_images():
         dst = cv2.undistort(img, mtx, dist, None, mtx)
         cvt = combine(dst)
         plt.imsave('./output_images/color_transformed' + str(i) + '.png', cvt, cmap=cm.gray)
-        #plt.imshow(cvt, cmap='gray')        
-        #plt.show()
-        #cv2.imwrite('./output_images/color_transformed' + str(i) + '.jpg', cvt)
 
 
 def compare_transformations():
@@ -120,23 +129,24 @@ def compare_transformations():
         ksize = 3 # Choose a larger odd number to smooth gradient measurements
 
         # Apply each of the thresholding functions
-        gradx = abs_sobel_thresh(dst, orient='x', sobel_kernel=ksize, thresh=(20, 100))
-        grady = abs_sobel_thresh(dst, orient='y', sobel_kernel=ksize, thresh=(20, 100))
-        mag_binary = mag_thresh(dst, sobel_kernel=ksize, mag_thresh=(30, 100))
-        dir_binary = dir_threshold(dst, sobel_kernel=ksize, thresh=(0.7, 1.3))    
-        hls_binary = hls_select(dst, thresh=(90, 255))
+        gradx = abs_sobel_thresh(dst, orient='x', sobel_kernel=ksize, thresh=(30, 100))
+        grady = abs_sobel_thresh(dst, orient='y', sobel_kernel=ksize, thresh=(30, 100))
+        mag_binary = mag_thresh(dst, sobel_kernel=ksize, mag_thresh=(50, 100))
+        dir_binary = dir_threshold(dst, sobel_kernel=ksize, thresh=(0.7, 1.2))    
+        hls_binary = hls_select(dst, thresh=(120, 255))
+        hsv_binary = hsv_select(dst, thresh=(120, 255))
 
         combined = np.zeros_like(dir_binary)
-        combined[((gradx == 1) & (hls_binary == 1)) | ((mag_binary == 1) & (dir_binary == 1))] = 1
+        combined[((gradx == 1) & (grady == 1) & (mag_binary == 1)) | ((hls_binary == 1) & (dir_binary == 1))] = 1
 
         # Plot the result
-        f, ((ax1, ax2, ax3), (ax4, ax5, ax6)) = plt.subplots(2, 3, figsize=(36, 18))
+        f, ((ax1, ax2, ax3), (ax4, ax5, ax6), (ax7, ax8, ax9)) = plt.subplots(3, 3, figsize=(36, 18))
         f.tight_layout()
         ax1.imshow(dst)
         ax1.set_title('Original Image', fontsize=50)
         ax2.imshow(gradx, cmap='gray')
         ax2.set_title('Thresholded Grad. X', fontsize=50)
-        ax3.imshow(hls_binary, cmap='gray')
+        ax3.imshow(grady, cmap='gray')
         ax3.set_title('Thresholded Grad. Y', fontsize=50)
         ax4.imshow(mag_binary, cmap='gray')
         ax4.set_title('Thresholded Grad. Mag.', fontsize=50)
@@ -144,8 +154,11 @@ def compare_transformations():
         ax5.set_title('Thresholded Grad. Dir.', fontsize=50)
         ax6.imshow(combined, cmap='gray')
         ax6.set_title('Combined', fontsize=50)
+        ax7.imshow(hls_binary, cmap='gray')
+        ax7.set_title('Thresholded HSL', fontsize=50)
+        ax8.imshow(hsv_binary, cmap='gray')
+        ax8.set_title('Thresholded HSV', fontsize=50)
+        ax9.imshow(hsv_binary, cmap='gray')
+        ax9.set_title('Thresholded Grad. Y', fontsize=50)
         plt.subplots_adjust(left=0., right=1, top=0.9, bottom=0.)
         plt.show()
-
-
-write_color_transformed_test_images()
