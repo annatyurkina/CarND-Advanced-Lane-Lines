@@ -3,11 +3,11 @@
 
 [image1]: ./examples/undistort_output.png "Undistorted"
 [image2]: ./test_images/test1.jpg "Original"
-[image3]: ./test_images/test1.jpg "Undistorted"
+[image3]: ./output_images/undistorted3.jpg "Undistorted"
 [image4]: ./output_images/undistorted5.jpg "Undistorted"
-[image5]: ./output_images/color_transformed5.jpg "Binary Transformed"
+[image5]: ./output_images/color_transformed5.png "Binary Transformed"
 [image6]: ./output_images/undistorted4.jpg "Undistorted"
-[image7]: ./output_images/warped4.jpg "Warped"
+[image7]: ./output_images/warped4.png "Warped"
 [image8]: ./examples/binary_combo_example.jpg "Binary Example"
 [image9]: ./examples/warped_straight_lines.jpg "Warp Example"
 [image10]: ./examples/color_fit_lines.jpg "Fit Visual"
@@ -18,7 +18,7 @@
 
 #Camera Calibration
 
-To calibrate the camera checkers board images in camera_cal repository subfolder were used. All images are taken of a checkers board with (9, 6) corners. OpenCV findChessboardCorners method is used on a greyscaled images to find exact corners locations.Those locations are used as an input to calibrateCamera function to find camera matrix and distortion coefficients. All the calibration code is loceted in [calibration.py](calibration.py) file.
+To calibrate the camera checkers board images in camera_cal repository subfolder were used. All images are taken of a checkers board with (9, 6) corners. OpenCV findChessboardCorners method is used on a greyscaled images to find exact corners locations.Those locations are used as an input to calibrateCamera function to find camera matrix and distortion coefficients. All the calibration code is loceted in [calibrate.py](calibrate.py) file.
 
 ![alt text][image1]
 
