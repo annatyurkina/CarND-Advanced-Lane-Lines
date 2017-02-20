@@ -107,8 +107,8 @@ def fit(binary_warped, undistorted_color, verbose = False):
     right_curverad = ((1 + (2*right_fit[0]*y_eval + right_fit[1])**2)**1.5) / np.absolute(2*right_fit[0])
     #print(left_curverad, right_curverad)
 
-    LEFT_LINE.was_detected(left_curverad, left_fit, right_curverad, right_fit)
-    RIGHT_LINE.was_detected(right_curverad, right_fit, left_curverad, left_fit, not LEFT_LINE.detected)
+    LEFT_LINE.was_detected(left_fitx, left_curverad, left_fit, right_curverad, right_fit)
+    RIGHT_LINE.was_detected(right_fitx, right_curverad, right_fit, left_curverad, left_fit, not LEFT_LINE.detected)
 
     # Define conversions in x and y from pixels space to meters
     ym_per_pix = 30/720 # meters per pixel in y dimension
@@ -128,8 +128,10 @@ def fit(binary_warped, undistorted_color, verbose = False):
     color_warp = np.dstack((warp_zero, warp_zero, warp_zero))
 
     # Recast the x and y points into usable format for cv2.fillPoly()
-    pts_left = np.array([np.transpose(np.vstack([left_fitx, ploty]))])
-    pts_right = np.array([np.flipud(np.transpose(np.vstack([right_fitx, ploty])))])
+    left_avg_fitx = LEFT_LINE.best_fit[0]*ploty**2 + LEFT_LINE.best_fit[1]*ploty + LEFT_LINE.best_fit[2]
+    right_avg_fitx = RIGHT_LINE.best_fit[0]*ploty**2 + RIGHT_LINE.best_fit[1]*ploty + RIGHT_LINE.best_fit[2]
+    pts_left = np.array([np.transpose(np.vstack([left_avg_fitx, ploty]))])
+    pts_right = np.array([np.flipud(np.transpose(np.vstack([right_avg_fitx, ploty])))])
     pts = np.hstack((pts_left, pts_right))
 
     # Draw the lane onto the warped blank image
@@ -170,9 +172,9 @@ def image_process(image):
 
 def fit_video():
     output = 'output.mp4'
-    clip_input = VideoFileClip('project_video.mp4')
+    clip_input = VideoFileClip('project_video.mp4') #.subclip(38,42)
     clip_output = clip_input.fl_image(image_process)
     clip_output.write_videofile(output, audio=False)
 
-#fit_video()
 fit_video()
+#do()
