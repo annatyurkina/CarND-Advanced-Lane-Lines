@@ -26,7 +26,7 @@ class Line():
         self.ally = None
 
     def was_detected(self, next_x, next_curvature, next_fit, next_other_curvature, next_other_fit, other_line_not_detected = False, verbose = True):
-        self.detected = (self.bestx == None) or \
+        self.detected = (self.detected == False) or \
             not other_line_not_detected and \
             (np.abs(self.radius_of_curvature - next_curvature) < 5000  or (self.radius_of_curvature > 5000 and next_curvature > 5000)) and \
             (np.abs(self.current_fit - next_fit) < [0.005, 2.0, 150.0]).all() and \
