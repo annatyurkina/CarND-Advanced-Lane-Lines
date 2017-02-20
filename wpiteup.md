@@ -18,13 +18,13 @@
 
 #Camera Calibration
 
-To calibrate the camera checkers board images in camera_cal repository subfolder were used. All images are taken of a checkers board with (9, 6) corners. OpenCV findChessboardCorners method is used on a greyscaled images to find exact corners locations.Those locations are used as an input to calibrateCamera function to find camera matrix and distortion coefficients. All the calibration code is loceted in [calibrate.py](calibrate.py) file.
+To calibrate the camera checkers board images in *camera_cal* repository subfolder were used. All images are taken of a checkers board with (9, 6) corners. OpenCV *findChessboardCorners* method is used on a greyscaled images to find exact corners locations.Those locations are used as an input to *calibrateCamera* function to find camera matrix and distortion coefficients. All the calibration code is located in [calibrate.py](calibrate.py) file.
 
 ![alt text][image1]
 
 #Pipeline
 
-The camera matrix was then used to undistort test images in CarND-Advanced-Lane-Lines\test_images.
+The camera matrix was then used to undistort test images in *CarND-Advanced-Lane-Lines\test_images*.
 
 Example of test image before and after distortion. 
  
@@ -46,17 +46,17 @@ After this, I defined a trapezoid on first two (straight lined) test images and 
 | 1056, 687     | 1091, 720     |
 | 687, 450      | 1091, 0       |
 
-Then using getPerspectiveTransform method for constructing perspective matrix (and inverse for later) and warpPerspective for actual transform of binary image, we got lines seen from above like this (see [undist_warp.py](undist_warp.py)):
+Then using *getPerspectiveTransform* method for constructing perspective matrix (and inverse for later) and *warpPerspective* for actual transform of binary image, we got lines seen from above like this (see [undist_warp.py](undist_warp.py)):
 
 ![alt text][image6]
 ![alt text][image7]
 
-The code in [sliding_windows.py](sliding_windows.py) is used to identify pixels of the line and then fit polynomial to it. There are two paths of how it may be done depending on the sequence of images being fed to fit method: detectiong lines using 9 sliding windows and detecting lines  
+The code in [sliding_windows.py](sliding_windows.py) is used to identify pixels of the line and then fit polynomial to it. There are two paths of how it may be done depending on the sequence of images being fed to fit method: detectiong lines using 9 sliding windows and detecting lines using areas around lines detected in the previous frame. 
 
-Line class in [line.py](line.py) is used to store valuable information of the left and right lines across the stream of input images, such as last 4 sets of fitted polynomial coefficients, current fit, average fit, current curvature. This data is used to make a decision whether polynomial coefficients detected in current video frame correspond in a sensible way to coefficients fitted in the previous frames as well as whether left and right lines are sensibly positioned on the frame. Assumprions that are made to produce the project video are thefollowing: 
+Line class in [line.py](line.py) is used to store valuable information of the left and right lines across the stream of input images, such as last 4 sets of fitted polynomial coefficients, current fit, average fit, current curvature. This data is used to make a decision whether polynomial coefficients detected in current video frame correspond in a sensible way to coefficients fitted in the previous frames as well as whether left and right lines are sensibly positioned on the frame. Assumptions that are made to produce the project video are the following: 
 
-1) We always trust the first frame because we have no data yet.
-2) If left line was not considered detected, we discard the right line from this frame automatically. 
+* We always trust the first frame because we have no data yet.
+* If left line was not considered detected, we discard the right line from this frame automatically. 
 
 
 
