@@ -7,11 +7,12 @@ import undist_warp
 import math
 from moviepy.editor import VideoFileClip
 import line
+import matplotlib.cm as cm
 
 LEFT_LINE = line.Line()
 RIGHT_LINE = line.Line()
 
-def fit(binary_warped, undistorted_color, verbose = False):
+def fit(binary_warped, undistorted_color, verbose = False, test_mode = False):
     # Identify the x and y positions of all nonzero pixels in the image
     nonzero = binary_warped.nonzero()
     nonzeroy = np.array(nonzero[0])
@@ -73,6 +74,7 @@ def fit(binary_warped, undistorted_color, verbose = False):
         print('not_detected')
 
     else:
+        # use areas around last fitted lines to find line pixels
         left_lane_inds = ((nonzerox > (LEFT_LINE.current_fit[0]*(nonzeroy**2) + LEFT_LINE.current_fit[1]*nonzeroy + LEFT_LINE.current_fit[2] - margin)) & (nonzerox < (LEFT_LINE.current_fit[0]*(nonzeroy**2) + LEFT_LINE.current_fit[1]*nonzeroy + LEFT_LINE.current_fit[2] + margin))) 
         right_lane_inds = ((nonzerox > (RIGHT_LINE.current_fit[0]*(nonzeroy**2) + RIGHT_LINE.current_fit[1]*nonzeroy + RIGHT_LINE.current_fit[2] - margin)) & (nonzerox < (RIGHT_LINE.current_fit[0]*(nonzeroy**2) + RIGHT_LINE.current_fit[1]*nonzeroy + RIGHT_LINE.current_fit[2] + margin))) 
         print('detected')
@@ -105,10 +107,9 @@ def fit(binary_warped, undistorted_color, verbose = False):
     y_eval = np.max(ploty)
     left_curverad = ((1 + (2*left_fit[0]*y_eval + left_fit[1])**2)**1.5) / np.absolute(2*left_fit[0])
     right_curverad = ((1 + (2*right_fit[0]*y_eval + right_fit[1])**2)**1.5) / np.absolute(2*right_fit[0])
-    #print(left_curverad, right_curverad)
 
-    LEFT_LINE.was_detected(left_fitx, left_curverad, left_fit, right_curverad, right_fit)
-    RIGHT_LINE.was_detected(right_fitx, right_curverad, right_fit, left_curverad, left_fit, not LEFT_LINE.detected)
+    LEFT_LINE.was_detected(left_fitx, left_curverad, left_fit, right_curverad, right_fit, test_mode = test_mode)
+    RIGHT_LINE.was_detected(right_fitx, right_curverad, right_fit, left_curverad, left_fit, not LEFT_LINE.detected, test_mode = test_mode)
 
     # Define conversions in x and y from pixels space to meters
     ym_per_pix = 30/720 # meters per pixel in y dimension
@@ -121,9 +122,16 @@ def fit(binary_warped, undistorted_color, verbose = False):
     left_curverad = ((1 + (2*left_fit_cr[0]*y_eval*ym_per_pix + left_fit_cr[1])**2)**1.5) / np.absolute(2*left_fit_cr[0])
     right_curverad = ((1 + (2*right_fit_cr[0]*y_eval*ym_per_pix + right_fit_cr[1])**2)**1.5) / np.absolute(2*right_fit_cr[0])
     # Now our radius of curvature is in meters
-    #print(left_curverad, 'm', right_curverad, 'm')
-    # Example values: 632.1 m    626.2 m# Create an image to draw the lines on
+    if(verbose):
+        print(left_curverad, 'm', right_curverad, 'm')
+    # Example values: 632.1 m    626.2 m
 
+    # car offset from center
+    car_offset = ((left_fit[2] + right_fit[2]) / 2.0 - binary_warped.shape[0] / 2.0) * xm_per_pix
+    if(verbose):
+        print('car offset: ', car_offset)
+
+    # Create an image to draw the lines on
     warp_zero = np.zeros_like(binary_warped).astype(np.uint8)
     color_warp = np.dstack((warp_zero, warp_zero, warp_zero))
 
@@ -147,10 +155,10 @@ def fit(binary_warped, undistorted_color, verbose = False):
         plt.imshow(result)
         plt.show()
 
-    return result
+    return out_img, result
 
 
-def do():
+def test():
 
     mtx, dist = calibrate.get_mtx_dist()
 
@@ -162,7 +170,9 @@ def do():
         i+=1
         img = cv2.imread(test_fname)
         wrp, udst = undist_warp.warp(img, mtx, dist)
-        fit(wrp, udst, True)
+        lines, result = fit(wrp, udst, True, test_mode = True)
+        plt.imsave('./output_images/lines' + str(i) + '.png', lines)
+        cv2.imwrite('./output_images/result' + str(i) + '.jpg', result)
 
 def image_process(image):
     mtx, dist = calibrate.get_mtx_dist()
@@ -176,5 +186,5 @@ def fit_video():
     clip_output = clip_input.fl_image(image_process)
     clip_output.write_videofile(output, audio=False)
 
-fit_video()
-#do()
+#fit_video()
+test()

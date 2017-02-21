@@ -43,6 +43,7 @@ def get_mtx_dist():
 
     return (mtx, dist)
 
+# save undistorted test images to the output folder
 def write_undistorted_test_images():
 
     mtx, dist = get_mtx_dist()

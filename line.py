@@ -25,7 +25,10 @@ class Line():
         #y values for detected line pixels
         self.ally = None
 
-    def was_detected(self, next_x, next_curvature, next_fit, next_other_curvature, next_other_fit, other_line_not_detected = False, verbose = True):
+    def was_detected(self, next_x, next_curvature, next_fit, next_other_curvature, next_other_fit, other_line_not_detected = False, verbose = True, test_mode = False):
+        if(test_mode):
+            self.best_fit = next_fit
+            return
         self.detected = (self.detected == False) or \
             not other_line_not_detected and \
             (np.abs(self.radius_of_curvature - next_curvature) < 5000  or (self.radius_of_curvature > 5000 and next_curvature > 5000)) and \
@@ -64,7 +67,4 @@ class Line():
             self.best_fit = np.mean(self.recent_fit, axis=0)
             self.current_fit = next_fit
             self.radius_of_curvature = next_curvature
-
-    def not_detected(self):
-        self.detected = false;
 

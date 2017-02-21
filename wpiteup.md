@@ -8,11 +8,9 @@
 [image5]: ./output_images/color_transformed5.png "Binary Transformed"
 [image6]: ./output_images/undistorted4.jpg "Undistorted"
 [image7]: ./output_images/warped4.png "Warped"
-[image8]: ./examples/binary_combo_example.jpg "Binary Example"
-[image9]: ./examples/warped_straight_lines.jpg "Warp Example"
-[image10]: ./examples/color_fit_lines.jpg "Fit Visual"
-[image12]: ./examples/example_output.jpg "Output"
-[video1]: ./project_video.mp4 "Video"
+[image8]: ./output_images/line4.png "Detected Lines"
+[image9]: ./output_images/result4.jpg "Output"
+[video1]: ./output.mp4 "Video"
 
 ##Advanced Line Finding
 
@@ -22,7 +20,7 @@ To calibrate the camera checkers board images in *camera_cal* repository subfold
 
 ![alt text][image1]
 
-#Pipeline
+#Pipeline (Test Images)
 
 The camera matrix was then used to undistort test images in *CarND-Advanced-Lane-Lines\test_images*.
 
@@ -51,12 +49,42 @@ Then using *getPerspectiveTransform* method for constructing perspective matrix 
 ![alt text][image6]
 ![alt text][image7]
 
-The code in [sliding_windows.py](sliding_windows.py) is used to identify pixels of the line and then fit polynomial to it. There are two paths of how it may be done depending on the sequence of images being fed to fit method: detectiong lines using 9 sliding windows and detecting lines using areas around lines detected in the previous frame. 
+The code in [sliding_windows.py](sliding_windows.py) is used to identify pixels of the line and then fit polynomial to it. There are two paths of how it may be done depending on the sequence of images being fed to fit method: detecting lines using 9 sliding windows and detecting lines using areas around lines detected in the previous frame. 
 
 Line class in [line.py](line.py) is used to store valuable information of the left and right lines across the stream of input images, such as last 4 sets of fitted polynomial coefficients, current fit, average fit, current curvature. This data is used to make a decision whether polynomial coefficients detected in current video frame correspond in a sensible way to coefficients fitted in the previous frames as well as whether left and right lines are sensibly positioned on the frame. Assumptions that are made to produce the project video are the following: 
 
-* We always trust the first frame because we have no data yet.
-* If left line was not considered detected, we discard the right line from this frame automatically. 
+* We always trust the first frame with lines detected using sliding windows.
+* If left line was not considered detected, we discard the right line from this frame automatically.
+* We care about next curvature being close to previous curvature and curvature of the other line in this frame when both are relatively small.
+* Next fitted polynomial coefficients have to be close to the previous ones and to the ones of the other line in this frame
+
+When the above conditions are met the new pair of lines is considered "detected", fitted polynomial coeffitients are added to the queue of four latest fits and the average of what is in the queue is considered as fit for the current frame. If lines are detected in the current frame, the next frame will not use sliding windows but just area arounf currently detected lines. When lines are lost, the sliding windows come in play again.
+
+![alt text][image7]
+![alt text][image8]
+
+The curvature radius in meters is also calculated in [sliding_windows.py](sliding_windows.py), see lines 113-122. We take already detected left and right line pixels, multiply them using pixel to meter conversions and fit polynomials to the result points. This way we obtain real valued polynomial coefficients to feed into curvature radius formula.
+
+The car offset from the center of the image is calculated in [sliding_windows.py](sliding_windows.py), see lines 128-131.
+
+Then warped image with the detected lines is transformed back using inverse perspective transform matrix and overlayed on the color undistorted image.
+
+![alt text][image3]
+![alt text][image9]
+
+#Pipeline (Video)
+
+Project video is fed into the pipeline described in the previous section. See the result video with detected lane below:
+
+![alt text][video1]
+
+#Discussion
+
+The created pipeline gives a good result on the project video. However, all the color and gradient binary thresholding was manually fine-tuned using test frames from the input video. This may become a problem in a different scenery or nighttime video. It would be interesting to train threshold coeffitients of possible image transformations on a set of different videos to minimise quantity of white pixels outside actual lines areas. Likewise, thresholds in the Line class in [line.py](line.py) were also tuned against the test video and are better learned as a combination of some video frames parameters. Finally, taking the average of n latest detections is constant along the way but has to be dependent on the car speed. 
+
+
+   
+  
 
 
 
