@@ -24,18 +24,21 @@ class Line():
         self.allx = None  
         #y values for detected line pixels
         self.ally = None
+        #last fit bad quality
+        self.last_fit_suspitious = False
 
     def was_detected(self, next_x, next_curvature, next_fit, next_other_curvature, next_other_fit, other_line_not_detected = False, verbose = True, test_mode = False):
         if(test_mode):
             self.best_fit = next_fit
             return
-        self.detected = (self.detected == False) or \
-            not other_line_not_detected and \
-            (np.abs(self.radius_of_curvature - next_curvature) < 5000  or (self.radius_of_curvature > 5000 and next_curvature > 5000)) and \
+        prev_detected = self.detected
+        this_detected = self.best_fit == None or ((np.abs(self.radius_of_curvature - next_curvature) < 5000  or (self.radius_of_curvature > 5000 and next_curvature > 5000)) and \
             (np.abs(self.current_fit - next_fit) < [0.005, 2.0, 150.0]).all() and \
             (np.abs(next_other_curvature - next_curvature) < 5000  or (next_other_curvature > 5000 and next_curvature > 5000)) and \
             (np.abs(next_other_fit[0] - next_fit[0]) < 0.001) and \
-            (np.abs(next_other_fit[1] - next_fit[1]) < 0.5)
+            (np.abs(next_other_fit[1] - next_fit[1]) < 0.5))
+        self.detected = not prev_detected or not other_line_not_detected and this_detected
+
         if(not self.bestx == None and verbose):
             print('curvature to last')
             print((np.abs(self.radius_of_curvature - next_curvature) < 5000  or (self.radius_of_curvature > 5000 and next_curvature > 5000)))
@@ -56,13 +59,17 @@ class Line():
             print(next_other_fit[0])
             print(next_fit[1])
             print(next_other_fit[1])
+
         if(self.detected):
             if(len(self.recent_xfitted) >= 4):
                 self.recent_xfitted.pop(0)
             self.recent_xfitted.append(next_x)
             self.bestx = np.mean(self.recent_xfitted, axis=0)
-            if(len(self.recent_fit) >= 4):
+            if(len(self.recent_fit) >= 4 and not self.last_fit_suspitious):
                 self.recent_fit.pop(0)
+            if(self.last_fit_suspitious):
+                self.recent_fit.pop()
+            self.last_fit_suspitious = not this_detected
             self.recent_fit.append(next_fit)
             self.best_fit = np.mean(self.recent_fit, axis=0)
             self.current_fit = next_fit

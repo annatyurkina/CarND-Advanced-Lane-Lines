@@ -177,14 +177,15 @@ def test():
 def image_process(image):
     mtx, dist = calibrate.get_mtx_dist()
     wrp, udst = undist_warp.warp(image, mtx, dist)
-    return fit(wrp, udst)
+    out_img, result = fit(wrp, udst, verbose = False)
+    return result
 
 
 def fit_video():
     output = 'output.mp4'
-    clip_input = VideoFileClip('project_video.mp4') #.subclip(22,28)
+    clip_input = VideoFileClip('project_video.mp4') #.subclip(41,43)
     clip_output = clip_input.fl_image(image_process)
     clip_output.write_videofile(output, audio=False)
 
-#fit_video()
-test()
+fit_video()
+#test()

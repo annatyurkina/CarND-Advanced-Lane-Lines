@@ -9,7 +9,8 @@
 [image6]: ./output_images/undistorted4.jpg "Undistorted"
 [image7]: ./output_images/warped4.png "Warped"
 [image8]: ./output_images/line4.png "Detected Lines"
-[image9]: ./output_images/result4.jpg "Output"
+[image9]: ./output_images/undistorted4.jpg "Undistorted"
+[image10]: ./output_images/result4.jpg "Output"
 [video1]: ./output.mp4 "Video"
 
 ##Advanced Line Finding
@@ -69,14 +70,14 @@ The car offset from the center of the image is calculated in [sliding_windows.py
 
 Then warped image with the detected lines is transformed back using inverse perspective transform matrix and overlayed on the color undistorted image.
 
-![alt text][image3]
 ![alt text][image9]
+![alt text][image10]
 
 #Pipeline (Video)
 
 Project video is fed into the pipeline described in the previous section. See the result video with detected lane below:
 
-![alt text][video1]
+[output.mp4](output.mp4)
 
 #Discussion
 
