@@ -2,7 +2,7 @@
 [//]: # (Image References)
 
 [image1]: ./output_images/calibration1.jpg "Distorted Chessboard"
-[image1.5]: ./output_images/undistorted_chessboard.png "Undistorted Chessboard"
+[image1.5]: ./output_images/undistorted_chessboard.jpg "Undistorted Chessboard"
 [image2]: ./test_images/test1.jpg "Original"
 [image3]: ./output_images/undistorted3.jpg "Undistorted"
 [image4]: ./output_images/undistorted5.jpg "Undistorted"
@@ -66,9 +66,11 @@ When the above conditions are met the new pair of lines is considered "detected"
 ![alt text][image7]
 ![alt text][image8]
 
-The curvature radius in meters is also calculated in [sliding_windows.py](sliding_windows.py), see lines 113-122. We take already detected left and right line pixels, multiply them using pixel to meter conversions and fit polynomials to the result points. This way we obtain real valued polynomial coefficients to feed into curvature radius formula.
+The curvature radius in meters is also calculated in [sliding_windows.py](sliding_windows.py), see lines 1123-127. We take already detected left and right line pixels, multiply them using pixel to meter conversions and fit polynomials to the result points. This way we obtain real valued polynomial coefficients to feed into curvature radius formula.
 
-The car offset from the center of the image is calculated in [sliding_windows.py](sliding_windows.py), see lines 128-131.
+The car offset from the center of the image is calculated in [sliding_windows.py](sliding_windows.py), see lines 134-136.
+
+Both curvature and car offset are then passed to *set_output_params* method of [line.py](line.py) where they are evaluated, added to the lists of recent mesurements if they are of a good quality and averaged against 4 most recent records. We change values once in 4 frames to make it readable for the user.
 
 Then warped image with the detected lines is transformed back using inverse perspective transform matrix and overlayed on the color undistorted image.
 
