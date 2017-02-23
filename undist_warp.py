@@ -12,7 +12,8 @@ def get_perspective_transform_matrices():
     # source trapezoid
     src = np.float32([[595.0,450.0],[259.0,687.0],[1056.0,687.0],[687.0,450.0]])
     # destination square
-    dst = np.float32([[219.0,0.0],[219.0,720.0],[1091.0,720.0],[1091.0,0.0]])
+    #dst = np.float32([[219.0,0.0],[219.0,720.0],[1091.0,720.0],[1091.0,0.0]])
+    dst = np.float32([[259.0,0.0],[259.0,720.0],[1056.0,720.0],[1056.0,0.0]])
     # perspective matrix
     M = cv2.getPerspectiveTransform(src, dst)
     # perspective matrix inverse

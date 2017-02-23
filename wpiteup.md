@@ -1,7 +1,8 @@
 
 [//]: # (Image References)
 
-[image1]: ./examples/undistort_output.png "Undistorted"
+[image1]: ./output_images/calibration1.jpg "Distorted Chessboard"
+[image1.5]: ./output_images/undistorted_chessboard.png "Undistorted Chessboard"
 [image2]: ./test_images/test1.jpg "Original"
 [image3]: ./output_images/undistorted3.jpg "Undistorted"
 [image4]: ./output_images/undistorted5.jpg "Undistorted"
@@ -20,6 +21,7 @@
 To calibrate the camera checkers board images in *camera_cal* repository subfolder were used. All images are taken of a checkers board with (9, 6) corners. OpenCV *findChessboardCorners* method is used on a greyscaled images to find exact corners locations.Those locations are used as an input to *calibrateCamera* function to find camera matrix and distortion coefficients. All the calibration code is located in [calibrate.py](calibrate.py) file.
 
 ![alt text][image1]
+![alt text][image1.5]
 
 #Pipeline (Test Images)
 

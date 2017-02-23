@@ -26,6 +26,16 @@ class Line():
         self.ally = None
         #last fit bad quality
         self.last_fit_suspitious = False
+        #last fit bad quality
+        self.recent_curvatures = []
+        #last fit bad quality
+        self.mean_curvature = None
+        #last fit bad quality
+        self.recent_car_offsets = []
+        #last fit bad quality
+        self.mean_car_offset = None
+        #last fit bad quality
+        self.output_frames = 0
 
     def was_detected(self, next_x, next_curvature, next_fit, next_other_curvature, next_other_fit, other_line_not_detected = False, verbose = True, test_mode = False):
         if(test_mode):
@@ -74,4 +84,24 @@ class Line():
             self.best_fit = np.mean(self.recent_fit, axis=0)
             self.current_fit = next_fit
             self.radius_of_curvature = next_curvature
+
+
+    def set_output_params(self, curvature, car_offset):
+        if(self.detected):
+            if(len(self.recent_curvatures) >= 4 and not self.last_fit_suspitious):
+                self.recent_curvatures.pop(0)
+                self.recent_car_offsets.pop(0)
+            if(self.last_fit_suspitious):
+                self.recent_car_offsets.pop()
+                self.recent_curvatures.pop()
+            self.recent_curvatures.append(curvature)
+            self.recent_car_offsets.append(car_offset)
+            if(self.output_frames == 0):
+                self.mean_curvature = np.mean(self.recent_curvatures)
+                self.mean_car_offset = np.mean(self.recent_car_offsets)
+            if(self.output_frames >= 4):
+                self.output_frames = 0
+            else:
+                self.output_frames+=1
+
 

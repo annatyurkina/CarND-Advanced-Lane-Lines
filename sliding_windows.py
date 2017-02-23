@@ -13,6 +13,10 @@ LEFT_LINE = line.Line()
 RIGHT_LINE = line.Line()
 
 def fit(binary_warped, undistorted_color, verbose = False, test_mode = False):
+    if(verbose):
+        plt.imshow(binary_warped)
+        plt.show()
+
     # Identify the x and y positions of all nonzero pixels in the image
     nonzero = binary_warped.nonzero()
     nonzeroy = np.array(nonzero[0])
@@ -131,6 +135,9 @@ def fit(binary_warped, undistorted_color, verbose = False, test_mode = False):
     if(verbose):
         print('car offset: ', car_offset)
 
+    LEFT_LINE.set_output_params(left_curverad, car_offset)
+    RIGHT_LINE.set_output_params(right_curverad, car_offset)
+
     # Create an image to draw the lines on
     warp_zero = np.zeros_like(binary_warped).astype(np.uint8)
     color_warp = np.dstack((warp_zero, warp_zero, warp_zero))
@@ -151,6 +158,9 @@ def fit(binary_warped, undistorted_color, verbose = False, test_mode = False):
     newwarp = cv2.warpPerspective(color_warp, Minv, (color_warp.shape[1], color_warp.shape[0])) 
     # Combine the result with the original image
     result = cv2.addWeighted(undistorted_color, 1, newwarp, 0.3, 0)
+    cv2.putText(result, "Car offset: " + str(LEFT_LINE.mean_car_offset), (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 1,(0,255,0),2)
+    cv2.putText(result, "Left curvature: " + str(LEFT_LINE.mean_curvature), (10, 80), cv2.FONT_HERSHEY_SIMPLEX, 1,(0,255,0),2)
+    cv2.putText(result, "Right curvature: " + str(RIGHT_LINE.mean_curvature), (10, 110), cv2.FONT_HERSHEY_SIMPLEX, 1,(0,255,0),2)
     if(verbose):
         plt.imshow(result)
         plt.show()
@@ -183,7 +193,7 @@ def image_process(image):
 
 def fit_video():
     output = 'output.mp4'
-    clip_input = VideoFileClip('project_video.mp4') #.subclip(41,43)
+    clip_input = VideoFileClip('project_video.mp4').subclip(41.6,43)
     clip_output = clip_input.fl_image(image_process)
     clip_output.write_videofile(output, audio=False)
 
