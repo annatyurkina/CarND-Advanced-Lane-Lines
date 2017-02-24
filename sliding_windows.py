@@ -193,7 +193,7 @@ def image_process(image):
 
 def fit_video():
     output = 'output.mp4'
-    clip_input = VideoFileClip('project_video.mp4').subclip(41.6,43)
+    clip_input = VideoFileClip('project_video.mp4') #.subclip(41.6,43)
     clip_output = clip_input.fl_image(image_process)
     clip_output.write_videofile(output, audio=False)
 
