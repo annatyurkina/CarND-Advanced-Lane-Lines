@@ -14,16 +14,16 @@
 [image10]: ./output_images/result4.jpg "Output"
 [video1]: ./output.mp4 "Video"
 
-##Advanced Line Finding
+# Advanced Line Finding
 
-#Camera Calibration
+## Camera Calibration
 
 To calibrate the camera checkers board images in *camera_cal* repository subfolder were used. All images are taken of a checkers board with (9, 6) corners. OpenCV *findChessboardCorners* method is used on a greyscaled images to find exact corners locations.Those locations are used as an input to *calibrateCamera* function to find camera matrix and distortion coefficients. All the calibration code is located in [calibrate.py](calibrate.py) file.
 
 ![alt text][image1]
 ![alt text][image1.5]
 
-#Pipeline (Test Images)
+## Pipeline (Test Images)
 
 The camera matrix was then used to undistort test images in *CarND-Advanced-Lane-Lines\test_images*.
 
@@ -77,13 +77,13 @@ Then warped image with the detected lines is transformed back using inverse pers
 ![alt text][image9]
 ![alt text][image10]
 
-#Pipeline (Video)
+## Pipeline (Video)
 
 Project video is fed into the pipeline described in the previous section. See the result video with detected lane below:
 
 [output.mp4](output.mp4)
 
-#Discussion
+## Discussion
 
 The created pipeline gives a good result on the project video. However, all the color and gradient binary thresholding was manually fine-tuned using test frames from the input video. This may become a problem in a different scenery or nighttime video. It would be interesting to train threshold coeffitients of possible image transformations on a set of different videos to minimise quantity of white pixels outside actual lines areas. Likewise, thresholds in the Line class in [line.py](line.py) were also tuned against the test video and are better learned as a combination of some video frames parameters. Finally, taking the average of n latest detections is constant along the way but has to be dependent on the car speed. 
 
